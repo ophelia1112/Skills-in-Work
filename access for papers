@@ -1,1 +1,99 @@
-This code is for the access for the academic papers
+#This code is for the access for academic papers, some places should be revised based on your need
+import os
+import requests
+import feedparser
+import re
+import time
+
+
+
+# define the keywords and categories
+search_queries=["keyword1","keyword2","keyword3","keyword4"....]
+categories=["category1","category2"...]
+
+
+
+# limit the download amount of your papers
+max_download_amount=number of amount
+
+
+
+# you can also limit the years(and months) you want to acquire the papers
+years=[2025,2024...]
+months=['01','02','03'...]
+
+
+
+# build the directories you want to store your papers
+save_dir='articles/actual category name of your papers'
+
+
+
+# clean the wrong signs to ensure the process of the access successful
+def clean_file(filename):
+  filename=filename.replace(" ","_")
+  filename=re.sub(r'[\\/*?:"<>|]',"",filename)
+  return filename[:100]
+
+
+
+# connect the API from the paper database and get the papers you want which concerning about the keywords
+for category in categories:
+  for keyword in search_queries:
+    for year in years:
+      for month in months:
+        start_date=f"{year}{month}01"
+        end_date=f"{year}{month}31"
+        print(f"searching {keyword} in {category} from {start_date} to {end_date} now")
+
+        paper_web="get the address of API like 'http://.../api/query?search_query='"
+
+# the API function used in data_range is provided by your aim paper database,like "submittedDate" of arxiv 
+
+        date_range=f"API function:[{start_date} TO {end_date}]"
+
+# build the query string which based on the API of the paper database, the query string is based on the arxiv API
+
+        query=f"cat:{category}+AND+all:{keyword.replace(' ','+')}+AND+{date_range}"
+        search_url=f"{paper_web}{query}&start=0&max_results={max_download_amount}"
+        response=requests.get(search_url)
+
+# This area also needs to build the API interface of your aim papers base and the interface below based on arxiv api
+
+        feed=feedparser.parse(response.content)
+
+        if not feed.entries:
+            print(f"no papers found for {keyword} in {year}{month}")
+            continue
+
+        for entry in feed.entries:
+          pdf_papers=entry.link.replace('abs','pdf')
+          paper_title=clean_file(entry.title)
+          print(f"downloading {paper_title}")
+
+          pdf_response=requests.get(pdf_papers)
+          if pdf_response.status_code==200:
+              month_dir=os.path.join(save_dir,f"{keyword.replace(' ','_')}_{year}_{month}")
+              os.makedirs(month_dir,exist_ok=True)
+              file_path=os.path.join(month_dir,f"{paper_title}.pdf")
+              with open(file_path,'wb') as file:
+                file.write(pdf_response.content)
+
+          else:
+            print(f"fail to download {paper_title}")
+          time.sleep(1)
+
+print('all papers are downloaded')
+
+
+
+
+
+
+
+
+
+
+
+
+
