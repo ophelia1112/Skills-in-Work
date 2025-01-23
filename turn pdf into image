@@ -1,0 +1,7 @@
+# Need to install the tool called "pdf2image"
+from pdf2image import convert_from_path
+pdf_path="your file path"
+images=convert_from_path(pdf_path)
+fro i image in enumerate(images):
+  image.save(f"page{i+1}.jpg","jpeg")
+print("trun successfully")
