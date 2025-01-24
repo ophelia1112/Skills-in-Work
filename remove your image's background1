@@ -1,0 +1,11 @@
+# this way is for you to remove your image's background, but this is method one
+from rembg import remove
+from PIL import Image
+input_img_path=""
+output_img_path=""
+with open(input_img_path,"rb") as img:
+  input_img_data=img.read()
+output_img_data=remove(input_img_data)
+with open(output_img_path,"wb") as outimg:
+  outimg.write(output_img_data)
+print('remove successfully')
