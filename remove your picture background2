@@ -1,0 +1,24 @@
+# this is the second method for you to remove your picture background and this way fit for more complex picture
+import torch
+from torchvision import transforms
+from PIL import Image
+import numpy as np
+
+# upload the model for preprocession
+model = torch.hub.load('NicolasHug/torchvision-u2net', 'u2net_human_seg', pretrained=True)
+model.eval()
+img = Image.open('img/game.jpg').convert('RGB')
+transform = transforms.Compose([
+    transforms.Resize((320, 320)),
+    transforms.ToTensor(),
+])
+input_tensor = transform(img).unsqueeze(0)
+with torch.no_grad():
+    output = model(input_tensor)
+mask = output[0][0].cpu().numpy()
+mask = (mask > 0.5).astype(np.uint8) * 255 
+mask = Image.fromarray(mask)
+mask = mask.resize(img.size, Image.BILINEAR)
+foreground = Image.composite(img, Image.new('RGBA', img.size, (255, 255, 255, 0)), mask)
+foreground.save('output.png')
+
