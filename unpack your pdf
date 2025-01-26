@@ -1,0 +1,17 @@
+# use some tools to unpack your pdf which has the password
+from PyPDF2 import PdfWriter, PdfReader
+input_pdf='.pdf'
+output_pdf='output_pdf.pdf'
+password='*******'
+reader = PdfReader(input_pdf)
+if reader.is_encrypted:
+    reader.decrypt(password)
+
+writer = PdfWriter()
+for page in reader.pages:
+    writer.add_page(page)
+
+with open(output_pdf, 'wb') as output_file:
+    writer.write(output_file)
+
+print('successsful')
